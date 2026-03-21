@@ -1,0 +1,62 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json",
+  "name": "0e6aee2e184942a19ec7",
+  "displayName": "Executive Summary (Problem & Scope)",
+  "displayOption": "ActualSize",
+  "height": 1100,
+  "width": 1400,
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "image": {
+            "image": {
+              "name": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'newtlo.png'"
+                  }
+                }
+              },
+              "url": {
+                "expr": {
+                  "ResourcePackageItem": {
+                    "PackageName": "RegisteredResources",
+                    "PackageType": 1,
+                    "ItemName": "newtlo7778819511955478.png"
+                  }
+                }
+              },
+              "scaling": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'Normal'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visualInteractions": [
+    {
+      "source": "1855003d7be7533e9acc",
+      "target": "9b11d136911132a38406",
+      "type": "DataFilter"
+    },
+    {
+      "source": "1855003d7be7533e9acc",
+      "target": "2aadf0a596dab14b69e6",
+      "type": "NoFilter"
+    }
+  ]
+}

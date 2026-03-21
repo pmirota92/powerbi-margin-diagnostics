@@ -1,0 +1,109 @@
+
+DEFINE
+---- MODEL MEASURES BEGIN ----
+
+/* 1. MIARY BAZOWE (CORE FINANCIALS) */
+
+    MEASURE _Measures[Total Revenue] = SUM('Fact_Sales'[Revenue])
+    
+    MEASURE _Measures[Total COGS] = SUM('Fact_Sales'[COGS])
+    
+    MEASURE _Measures[Total Discount] = SUM('Fact_Sales'[Discount_Amount])
+    
+    MEASURE _Measures[Gross Margin] = [Total Revenue] - [Total COGS]
+    
+    MEASURE _Measures[Gross Margin %] = DIVIDE([Gross Margin], [Total Revenue], 0)
+
+/* 2. MIARY JEDNOSTKOWE (UNIT ANALYSIS) */
+
+    MEASURE _Measures[Total Quantity] = SUM('Fact_Sales'[Quantity])
+    
+    MEASURE _Measures[Avg Unit Price] = DIVIDE([Total Revenue], [Total Quantity], 0)
+    
+    MEASURE _Measures[Avg Unit Cost] = DIVIDE([Total COGS], [Total Quantity], 0)
+
+/* 3. TIME INTELLIGENCE (YOY ANALYSIS) */
+
+    MEASURE _Measures[Revenue LY] = 
+        CALCULATE([Total Revenue], SAMEPERIODLASTYEAR('Date'[Date]))
+        
+    MEASURE _Measures[Revenue Growth YoY %] = 
+        DIVIDE([Total Revenue] - [Revenue LY], [Revenue LY], 0)
+        
+    MEASURE _Measures[Margin % LY] = 
+        CALCULATE([Gross Margin %], SAMEPERIODLASTYEAR('Date'[Date]))
+        
+    // Margin Erosion wyrażona w punktach bazowych (bps) - standard seniora
+    MEASURE _Measures[Margin Erosion (bps)] = 
+        ([Gross Margin %] - [Margin % LY]) * 10000
+
+/* 4. ANALIZA WARIANCJI (PRICE-VOLUME-MIX COMPONENTS) */
+// Kluczowe do Waterfall Chart (Margin Bridge)
+
+    MEASURE _Measures[Price Impact] = 
+        VAR _AvgPriceLY = CALCULATE([Avg Unit Price], SAMEPERIODLASTYEAR('Date'[Date]))
+        RETURN SUMX('Fact_Sales', ([Avg Unit Price] - _AvgPriceLY) * 'Fact_Sales'[Quantity])
+
+    MEASURE _Measures[Cost Impact] = 
+        VAR _AvgCostLY = CALCULATE([Avg Unit Cost], SAMEPERIODLASTYEAR('Date'[Date]))
+        // Koszt rosnący to wpływ ujemny na marżę, stąd odwrócone odejmowanie
+        RETURN SUMX('Fact_Sales', (_AvgCostLY - [Avg Unit Cost]) * 'Fact_Sales'[Quantity])
+
+    MEASURE _Measures[Volume Impact] = 
+        VAR _QtyLY = CALCULATE([Total Quantity], SAMEPERIODLASTYEAR('Date'[Date]))
+        VAR _MarginLY = CALCULATE([Gross Margin %], SAMEPERIODLASTYEAR('Date'[Date]))
+        VAR _AvgPriceLY = CALCULATE([Avg Unit Price], SAMEPERIODLASTYEAR('Date'[Date]))
+        RETURN ([Total Quantity] - _QtyLY) * _AvgPriceLY * _MarginLY
+
+/* 5. TARGETS & BENCHMARKING */
+
+    MEASURE _Measures[Product Target Margin %] = AVERAGE('Dim_Product'[Target_Margin_%])
+    
+    MEASURE _Measures[Margin Variance to Target] = [Gross Margin %] - [Product Target Margin %]
+    
+    // Dynamiczna ikona do tabel i matryc
+    MEASURE _Measures[Margin Health Status] = 
+        VAR _Var = [Margin Variance to Target]
+        RETURN 
+            SWITCH( TRUE(),
+                ISBLANK(_Var), "⚪",
+                _Var >= 0, "🟢 Healthy",
+                _Var > -0.05, "🟡 Warning",
+                "🔴 Critical"
+            )
+
+/* 6. ACTIONABLE INSIGHTS (SENIOR STRATEGY) */
+
+    // Ile marży "uciekło" przez nadmiarowe rabaty (powyżej 15%)
+    MEASURE _Measures[Excessive Discount Impact] = 
+        SUMX(
+            'Fact_Sales',
+            VAR _DiscPct = DIVIDE('Fact_Sales'[Discount_Amount], 'Fact_Sales'[Revenue] + 'Fact_Sales'[Discount_Amount])
+            RETURN IF(_DiscPct > 0.15, 'Fact_Sales'[Discount_Amount], 0)
+        )
+
+    // Symulacja: Potencjał dosprzedaży (Up-selling)
+    // Oblicza różnicę marży między produktem wybranym a jego odpowiednikiem Premium
+    MEASURE _Measures[Upsell Opportunity Potential] = 
+        VAR _CurrentMargin = [Gross Margin]
+        VAR _PremiumMarginPct = 0.45 // Założenie dla produktów Premium
+        VAR _PotentialRevenue = [Total Revenue]
+        RETURN (_PotentialRevenue * _PremiumMarginPct) - _CurrentMargin
+
+/* 7. WIZUALIZACJA (DYNAMIC TITLES & TOOLTIPS) */
+
+    MEASURE _Measures[Dynamic Title Executive] = 
+        "Revenue vs Margin Analysis | " & SELECTEDVALUE('Date'[Year], "All Years") & 
+        " | Status: " & [Margin Health Status]
+
+---- MODEL MEASURES END ----
+
+EVALUATE
+    SUMMARIZECOLUMNS(
+        'Dim_Product'[Tier],
+        "Rev", [Total Revenue],
+        "Margin %", [Gross Margin %],
+        "Erosion (bps)", [Margin Erosion (bps)],
+        "Price Impact", [Price Impact]
+    )
+

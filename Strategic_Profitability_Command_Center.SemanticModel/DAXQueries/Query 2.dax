@@ -1,0 +1,63 @@
+DEFINE
+---- MODEL MEASURES BEGIN ----
+
+-- 1. Inteligentna sugestia zamiennika (Dynamic Upsell)
+MEASURE _Measures[Dynamic Upsell Suggestion] = 
+    VAR _CurrentProduct = SELECTEDVALUE('Dim_Product'[Product_Name])
+    VAR _CurrentCategory = SELECTEDVALUE('Dim_Product'[Category])
+    VAR _CurrentMargin = [Gross Margin %]
+
+    -- Szukamy produktu o najwyższej marży W TEJ SAMEJ KATEGORII
+    VAR _BestInClass = 
+        TOPN(
+            1,
+            FILTER(
+                ALL('Dim_Product'),
+                'Dim_Product'[Category] = _CurrentCategory && 
+                'Dim_Product'[Product_Name] <> _CurrentProduct
+            ),
+            [Gross Margin %], DESC
+        )
+
+    VAR _AlternativeName = SELECTCOLUMNS(_BestInClass, "Name", 'Dim_Product'[Product_Name])
+    VAR _AlternativeMargin = CALCULATE([Gross Margin %], _BestInClass)
+
+    RETURN
+    IF(
+        _AlternativeMargin > _CurrentMargin,
+        "Suggest: " & _AlternativeName & " (" & FORMAT(_AlternativeMargin, "0%") & " Margin)",
+        "Optimal product for this category"
+    )
+
+-- 2. Dynamiczna luka marżowa (Opportunity Gap)
+MEASURE _Measures[Opportunity Gap (Dynamic)] = 
+    VAR _CurrentProduct = SELECTEDVALUE('Dim_Product'[Product_Name])
+    VAR _CurrentCategory = SELECTEDVALUE('Dim_Product'[Category])
+    VAR _CurrentMarginAmount = [Gross Margin]
+
+    -- Pobieramy marżę % najlepszego produktu w kategorii
+    VAR _BestMarginPct = 
+        CALCULATE(
+            [Gross Margin %],
+            TOPN(
+                1,
+                FILTER(
+                    ALL('Dim_Product'),
+                    'Dim_Product'[Category] = _CurrentCategory && 
+                    'Dim_Product'[Product_Name] <> _CurrentProduct
+                ),
+                [Gross Margin %], DESC
+            )
+        )
+
+    -- Obliczamy potencjał: (Nasz przychód * marża lidera) - nasza obecna marża
+    VAR _PotentialMarginAmount = [Total Revenue] * _BestMarginPct
+
+    RETURN
+    IF(
+        _PotentialMarginAmount > _CurrentMarginAmount,
+        _PotentialMarginAmount - _CurrentMarginAmount,
+        0
+    )
+
+---- MODEL MEASURES END ----

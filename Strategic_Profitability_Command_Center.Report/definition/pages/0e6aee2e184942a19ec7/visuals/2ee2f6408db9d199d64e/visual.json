@@ -1,0 +1,103 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.6.0/schema.json",
+  "name": "2ee2f6408db9d199d64e",
+  "position": {
+    "x": 6.6666666666665151,
+    "y": 14,
+    "z": 7000,
+    "height": 158,
+    "width": 278,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Filters Applied Headers"
+                }
+              },
+              "queryRef": "_Measures.Filters Applied Headers",
+              "nativeQueryRef": "Headers",
+              "displayName": "Headers"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Filters Applied"
+                }
+              },
+              "queryRef": "_Measures.Filters Applied",
+              "nativeQueryRef": "Filters Applied"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Measures"
+                  }
+                },
+                "Property": "Filters Applied"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "73.33333333333333D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "_Measures.Filters Applied Headers"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "183.57927623577922D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "_Measures.Filters Applied"
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "parentGroupName": "6f83eccf1d20d8412615"
+}
