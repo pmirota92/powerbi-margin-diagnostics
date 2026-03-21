@@ -25,7 +25,7 @@ jobs:
           echo --- ROZPOCZYNANIE ANALIZY ---
           
           :: Uruchomienie TE2 z pełnymi ścieżkami (potwierdzonymi w diagnostyce)
-          ".\TE\TabularEditor.exe" "Sales_v2.SemanticModel\model.bim" -A "BPARules.json" -V
+          ".\TE\TabularEditor.exe" "Strategic_Profitability_Command_Center.SemanticModel\model.bim" -A "BPARules.json" -V
           
           :: Sprawdzenie kodu wyjścia (TE2 zwraca liczbę błędów jako ErrorLevel)
           if %errorlevel% neq 0 (
