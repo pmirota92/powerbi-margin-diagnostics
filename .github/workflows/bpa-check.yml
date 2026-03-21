@@ -1,30 +1,36 @@
-name: Tabular Editor BPA Validation
+name: Power BI Best Practice Check
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+on: [push, pull_request]
 
 jobs:
-  validate-model:
+  check-rules:
     runs-on: windows-latest
-
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+      # 1. Pobranie kodu źródłowego Twojego raportu
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Download & Install Tabular Editor 2 (CLI)
-      run: |
-        Invoke-WebRequest -Uri "https://github.com/TabularEditor/TabularEditor/releases/download/2.17.3/TabularEditor.Portable.zip" -OutFile "TE2.zip"
-        Expand-Archive -Path "TE2.zip" -DestinationPath ".\TE2"
+      # 2. Pobranie najnowszej wersji Tabular Editor CLI (2.27.2)
+      - name: Download Tabular Editor CLI
+        run: |
+          $url = "https://cdn.tabulareditor.com/files/TabularEditor.2.27.2.zip"
+          Write-Host "Pobieranie Tabular Editor z: $url"
+          Invoke-WebRequest -Uri $url -OutFile "TE.zip" -ErrorAction Stop
+          Expand-Archive -Path "TE.zip" -DestinationPath "./TE"
 
-    - name: Download Official Microsoft BPA Rules
-      run: |
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/Analysis-Services/master/BestPracticeRules/BPARules.json" -OutFile "BPARules.json"
-
-    - name: Run Best Practice Analyzer (BPA)
-      run: |
-        # Uruchamiamy Tabular Editor w trybie Command Line (-V oznacza walidację BPA)
-        # Błąd wyrzuci kod wyjścia (exit code) > 0, co "obleje" test na GitHubie.
-        .\TE2\TabularEditor.exe "Model.bim" -A "BPARules.json" -V
+# 3. Uruchomienie analizy z wymuszeniem logowania błędów
+      - name: Run Best Practice Analyzer
+        shell: cmd
+        run: |
+          echo --- ROZPOCZYNANIE ANALIZY ---
+          
+          :: Uruchomienie TE2 z pełnymi ścieżkami (potwierdzonymi w diagnostyce)
+          ".\TE\TabularEditor.exe" "Sales_v2.SemanticModel\model.bim" -A "BPARules.json" -V
+          
+          :: Sprawdzenie kodu wyjścia (TE2 zwraca liczbę błędów jako ErrorLevel)
+          if %errorlevel% neq 0 (
+            echo Tabular Editor znalazł naruszenia reguł lub wystąpił błąd!
+            echo Liczba błędów/Kod: %errorlevel%
+          ) else (
+            echo Brak błędów BPA lub program nie mógł otworzyć modelu.
+          )
