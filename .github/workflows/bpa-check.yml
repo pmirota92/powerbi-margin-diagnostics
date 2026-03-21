@@ -1,0 +1,30 @@
+name: Tabular Editor BPA Validation
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  validate-model:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Download & Install Tabular Editor 2 (CLI)
+      run: |
+        Invoke-WebRequest -Uri "https://github.com/TabularEditor/TabularEditor/releases/download/2.17.3/TabularEditor.Portable.zip" -OutFile "TE2.zip"
+        Expand-Archive -Path "TE2.zip" -DestinationPath ".\TE2"
+
+    - name: Download Official Microsoft BPA Rules
+      run: |
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/Analysis-Services/master/BestPracticeRules/BPARules.json" -OutFile "BPARules.json"
+
+    - name: Run Best Practice Analyzer (BPA)
+      run: |
+        # Uruchamiamy Tabular Editor w trybie Command Line (-V oznacza walidację BPA)
+        # Błąd wyrzuci kod wyjścia (exit code) > 0, co "obleje" test na GitHubie.
+        .\TE2\TabularEditor.exe "Model.bim" -A "BPARules.json" -V
