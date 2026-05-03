@@ -5,7 +5,6 @@
 ![Tabular Editor](https://img.shields.io/badge/Tabular_Editor-Enterprise_BI-brightgreen?style=for-the-badge)
 ![BPA](https://img.shields.io/badge/Best_Practice_Analyzer-0_Errors-success?style=for-the-badge)
 
-*(Tip: You can place an animated GIF of your dashboard in action here! Example: `![Dashboard Demo](demo.gif)`)*
 ![powerbi-margin-diagnostics](PBI_demo.png)
 
 ## 🚀 Enterprise Analytics Pipeline & CI/CD Architecture
