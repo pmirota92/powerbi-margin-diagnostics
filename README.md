@@ -6,6 +6,7 @@
 ![BPA](https://img.shields.io/badge/Best_Practice_Analyzer-0_Errors-success?style=for-the-badge)
 
 *(Tip: You can place an animated GIF of your dashboard in action here! Example: `![Dashboard Demo](demo.gif)`)*
+![powerbi-margin-diagnostics](PBI_demo.png)
 
 ## 🚀 Enterprise Analytics Pipeline & CI/CD Architecture
 
@@ -70,8 +71,7 @@ Translating complex FP&A logic into a lightning-fast Power BI model requires str
 ## 🔬 3. Advanced DAX Showcase: In-Memory SVG Rendering
 
 To maximize visual performance and eliminate the need for heavy custom visuals, KPI trendlines are rendered natively using Vector Graphics (SVG) computed dynamically in memory.
-<img width="1755" height="1370" alt="image" src="https://github.com/user-attachments/assets/381554b0-32ef-4342-953c-54772e724e47" />
-
+![powerbi-margin-diagnostics](KPI_Card_GPM.png)
 <details>
 <summary><b>🔥 Click to expand: Dynamic SVG Sparkline DAX Formulation</b></summary>
 
