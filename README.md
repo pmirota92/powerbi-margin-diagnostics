@@ -70,6 +70,7 @@ Translating complex FP&A logic into a lightning-fast Power BI model requires str
 ## 🔬 3. Advanced DAX Showcase: In-Memory SVG Rendering
 
 To maximize visual performance and eliminate the need for heavy custom visuals, KPI trendlines are rendered natively using Vector Graphics (SVG) computed dynamically in memory.
+<img width="1755" height="1370" alt="image" src="https://github.com/user-attachments/assets/381554b0-32ef-4342-953c-54772e724e47" />
 
 <details>
 <summary><b>🔥 Click to expand: Dynamic SVG Sparkline DAX Formulation</b></summary>
